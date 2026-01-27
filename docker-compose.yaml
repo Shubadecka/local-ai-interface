@@ -1,0 +1,54 @@
+services:
+  ollama:
+    image: ollama/ollama:rocm
+    container_name: ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+    restart: unless-stopped
+
+  comfyui:
+    image: yanwk/comfyui-boot:rocm6
+    container_name: comfyui
+    volumes:
+      - comfyui-storage:/root
+      - comfyui-models:/root/ComfyUI/models
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      - CLI_ARGS=
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    volumes:
+      - open-webui-data:/app/backend/data
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - COMFYUI_BASE_URL=http://comfyui:8188
+      - ENABLE_IMAGE_GENERATION=true
+    depends_on:
+      - ollama
+      - comfyui
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+  comfyui-storage:
+  comfyui-models:
+  open-webui-data:
