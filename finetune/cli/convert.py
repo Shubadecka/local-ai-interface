@@ -1,7 +1,7 @@
 """Convert command for exporting models to Ollama."""
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import typer
 from rich.console import Console
@@ -13,12 +13,12 @@ console = Console()
 QUANTIZATION_METHODS = [
     "q4_k_m",  # Recommended: good balance of quality and size
     "q5_k_m",  # Higher quality, larger size
-    "q8_0",    # Highest quality, largest size
-    "q4_0",    # Fastest, lowest quality
+    "q8_0",  # Highest quality, largest size
+    "q4_0",  # Fastest, lowest quality
     "q4_1",
     "q5_0",
     "q5_1",
-    "f16",     # No quantization (half precision)
+    "f16",  # No quantization (half precision)
 ]
 
 
@@ -182,7 +182,7 @@ def _display_conversion_plan(
     console.print()
 
 
-def _display_conversion_result(result: dict) -> None:
+def _display_conversion_result(result: dict[str, Any]) -> None:
     """Display the conversion result."""
     console.print(
         Panel(
@@ -196,6 +196,5 @@ def _display_conversion_result(result: dict) -> None:
 
     if result.get("ollama_model"):
         console.print(
-            f"\n[bold]Run your model:[/bold]\n"
-            f"  ollama run {result['ollama_model']}"
+            f"\n[bold]Run your model:[/bold]\n" f"  ollama run {result['ollama_model']}"
         )

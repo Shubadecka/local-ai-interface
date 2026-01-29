@@ -37,7 +37,7 @@ class OllamaClient:
         """
         try:
             response = httpx.get(f"{self.host}/api/tags", timeout=5.0)
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except httpx.RequestError:
             return False
 
@@ -53,8 +53,9 @@ class OllamaClient:
         try:
             response = httpx.get(f"{self.api_url}/tags", timeout=10.0)
             response.raise_for_status()
-            data = response.json()
-            return data.get("models", [])
+            data: dict[str, Any] = response.json()
+            result: list[dict[str, Any]] = data.get("models", [])
+            return result
         except httpx.RequestError as e:
             raise OllamaError(f"Failed to list models: {e}") from e
 
@@ -119,7 +120,9 @@ class OllamaClient:
 
         except FileNotFoundError:
             # ollama CLI not found, fall back to API
-            logger.warning("ollama CLI not found, using API (may not work with local files)")
+            logger.warning(
+                "ollama CLI not found, using API (may not work with local files)"
+            )
             self._create_model_api(name, modelfile_content)
 
         except subprocess.TimeoutExpired:
@@ -183,7 +186,8 @@ class OllamaClient:
             if response.status_code == 404:
                 return None
             response.raise_for_status()
-            return response.json()
+            result: dict[str, Any] = response.json()
+            return result
         except httpx.RequestError:
             return None
 

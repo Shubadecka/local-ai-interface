@@ -87,7 +87,7 @@ def convert_to_ollama(
     )
 
     # Save conversion metadata
-    metadata = _save_conversion_metadata(
+    _save_conversion_metadata(
         output_dir=output_dir,
         checkpoint_path=checkpoint_path,
         model_name=model_name,
@@ -152,7 +152,7 @@ def _convert_to_gguf(
 
     # Find the run config to get base model info
     run_dir = checkpoint_path.parent
-    if checkpoint_path.name in ("final", ) or checkpoint_path.name.startswith(
+    if checkpoint_path.name in ("final",) or checkpoint_path.name.startswith(
         "checkpoint-"
     ):
         run_dir = checkpoint_path.parent
@@ -175,8 +175,8 @@ def _convert_to_gguf(
             max_seq_length = 2048
         else:
             raise ConversionError(
-                f"Could not determine base model. "
-                f"No run_config.yaml or adapter_config.json found."
+                "Could not determine base model. "
+                "No run_config.yaml or adapter_config.json found."
             )
 
     logger.info(f"Base model: {base_model}")
@@ -312,8 +312,9 @@ def _save_conversion_metadata(
 
 def _format_size(size_bytes: int) -> str:
     """Format bytes as human-readable string."""
+    size: float = float(size_bytes)
     for unit in ["B", "KB", "MB", "GB", "TB"]:
-        if size_bytes < 1024:
-            return f"{size_bytes:.1f} {unit}"
-        size_bytes /= 1024
-    return f"{size_bytes:.1f} PB"
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} PB"

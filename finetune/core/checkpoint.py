@@ -111,7 +111,8 @@ class CheckpointManager:
             return None
 
         with open(config_path, "r") as f:
-            return yaml.safe_load(f)
+            result: dict[str, Any] = yaml.safe_load(f)
+            return result
 
     def get_run_metadata(self, run_name: str) -> Optional[dict[str, Any]]:
         """Get metadata for a training run.
@@ -129,7 +130,8 @@ class CheckpointManager:
             return None
 
         with open(metadata_path, "r") as f:
-            return json.load(f)
+            result: dict[str, Any] = json.load(f)
+            return result
 
     def _get_run_info(self, run_dir: Path) -> Optional[dict[str, Any]]:
         """Extract information about a training run.
@@ -241,11 +243,12 @@ class CheckpointManager:
         Returns:
             Human-readable size string
         """
+        size: float = float(size_bytes)
         for unit in ["B", "KB", "MB", "GB", "TB"]:
-            if size_bytes < 1024:
-                return f"{size_bytes:.1f} {unit}"
-            size_bytes /= 1024
-        return f"{size_bytes:.1f} PB"
+            if size < 1024:
+                return f"{size:.1f} {unit}"
+            size /= 1024
+        return f"{size:.1f} PB"
 
 
 def find_checkpoint(path: Path) -> Optional[Path]:

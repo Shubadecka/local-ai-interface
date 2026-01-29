@@ -1,6 +1,7 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
+# B008: Typer uses function calls in defaults intentionally
+extend-ignore = E203, E501, W503, B008
 exclude =
     .git,
     __pycache__,

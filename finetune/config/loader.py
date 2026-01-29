@@ -40,7 +40,9 @@ def load_yaml(path: Union[str, Path]) -> dict[str, Any]:
             if content is None:
                 return {}
             if not isinstance(content, dict):
-                raise ConfigError(f"Configuration must be a YAML mapping, got {type(content)}")
+                raise ConfigError(
+                    f"Configuration must be a YAML mapping, got {type(content)}"
+                )
             return content
     except yaml.YAMLError as e:
         raise ConfigError(f"Invalid YAML in {path}: {e}") from e
@@ -63,7 +65,9 @@ def load_config(path: Union[str, Path]) -> FinetuneConfig:
 
     try:
         config = FinetuneConfig.model_validate(raw_config)
-        logger.info(f"Configuration loaded successfully for run: {config.output.run_name}")
+        logger.info(
+            f"Configuration loaded successfully for run: {config.output.run_name}"
+        )
         return config
     except ValidationError as e:
         error_messages = []
@@ -72,7 +76,7 @@ def load_config(path: Union[str, Path]) -> FinetuneConfig:
             message = error["msg"]
             error_messages.append(f"  - {location}: {message}")
         raise ConfigError(
-            f"Configuration validation failed:\n" + "\n".join(error_messages)
+            "Configuration validation failed:\n" + "\n".join(error_messages)
         ) from e
 
 

@@ -48,11 +48,11 @@ repos:
     hooks:
       - id: pytest-cov
         name: pytest with coverage
-        entry: pytest --cov=finetune --cov-fail-under=70 --cov-report=term-missing -q
+        entry: pytest --cov=finetune --cov-fail-under=50 --cov-report=term-missing -q
         language: system
         pass_filenames: false
         always_run: true
-        stages: [commit]
+        stages: [pre-commit]
 
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks

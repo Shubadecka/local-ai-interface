@@ -1,9 +1,7 @@
 """Tests for checkpoint management."""
 
 import json
-from pathlib import Path
 
-import pytest
 import yaml
 
 from finetune.core.checkpoint import CheckpointManager, find_checkpoint
@@ -29,18 +27,12 @@ class TestCheckpointManager:
         # Create mock run directories
         run1 = tmp_checkpoint_dir / "run-1"
         run1.mkdir()
-        (run1 / "run_config.yaml").write_text(
-            yaml.dump({"model": {"name": "model-1"}})
-        )
-        (run1 / "run_metadata.json").write_text(
-            json.dumps({"status": "completed"})
-        )
+        (run1 / "run_config.yaml").write_text(yaml.dump({"model": {"name": "model-1"}}))
+        (run1 / "run_metadata.json").write_text(json.dumps({"status": "completed"}))
 
         run2 = tmp_checkpoint_dir / "run-2"
         run2.mkdir()
-        (run2 / "run_config.yaml").write_text(
-            yaml.dump({"model": {"name": "model-2"}})
-        )
+        (run2 / "run_config.yaml").write_text(yaml.dump({"model": {"name": "model-2"}}))
 
         manager = CheckpointManager(tmp_checkpoint_dir)
         runs = manager.list_runs()

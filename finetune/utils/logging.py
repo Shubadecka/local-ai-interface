@@ -1,7 +1,6 @@
 """Logging setup for the finetuning CLI."""
 
 import logging
-import sys
 from typing import Optional
 
 from rich.console import Console

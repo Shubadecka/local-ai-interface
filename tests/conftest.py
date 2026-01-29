@@ -1,7 +1,6 @@
 """Pytest fixtures for the test suite."""
 
 from pathlib import Path
-from typing import Generator
 
 import pytest
 

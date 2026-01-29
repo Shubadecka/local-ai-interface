@@ -1,7 +1,7 @@
 """Pydantic models for finetuning configuration."""
 
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -93,7 +93,7 @@ class LoRAConfig(BaseModel):
         default=False,
         description="Use Rank-Stabilized LoRA",
     )
-    loftq_config: Optional[dict] = Field(
+    loftq_config: Optional[dict[str, Any]] = Field(
         default=None,
         description="LoftQ quantization config",
     )

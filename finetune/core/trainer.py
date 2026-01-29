@@ -1,7 +1,6 @@
 """Training orchestration with Unsloth + TRL."""
 
 import json
-import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
@@ -37,8 +36,6 @@ def run_training(
     """
     # Lazy imports to avoid loading heavy dependencies unnecessarily
     try:
-        from datasets import load_dataset
-        from transformers import TrainingArguments
         from trl import SFTConfig, SFTTrainer
         from unsloth import FastLanguageModel
     except ImportError as e:
@@ -150,7 +147,7 @@ def run_training(
     return final_dir
 
 
-def _get_dtype(dtype_str: Optional[str]):
+def _get_dtype(dtype_str: Optional[str]) -> Any:
     """Convert dtype string to torch dtype."""
     if dtype_str is None:
         return None
@@ -165,7 +162,7 @@ def _get_dtype(dtype_str: Optional[str]):
     return dtype_map.get(dtype_str)
 
 
-def _load_dataset(config: FinetuneConfig):
+def _load_dataset(config: FinetuneConfig) -> Any:
     """Load and prepare the training dataset."""
     from datasets import load_dataset
 

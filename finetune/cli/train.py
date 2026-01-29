@@ -1,7 +1,7 @@
 """Train command for finetuning LLMs."""
 
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import typer
 from rich.console import Console
@@ -9,6 +9,9 @@ from rich.panel import Panel
 
 from finetune.config.loader import ConfigError, load_config
 from finetune.utils.logging import setup_logging
+
+if TYPE_CHECKING:
+    from finetune.config.schema import FinetuneConfig
 
 console = Console()
 
@@ -122,7 +125,9 @@ def _start_training(config_path: Path, dry_run: bool = False) -> None:
 
 def _resume_training(checkpoint_path: Path, dry_run: bool = False) -> None:
     """Resume training from a checkpoint."""
-    console.print(f"\n[bold blue]Resuming from checkpoint:[/bold blue] {checkpoint_path}")
+    console.print(
+        f"\n[bold blue]Resuming from checkpoint:[/bold blue] {checkpoint_path}"
+    )
 
     # Look for run_config.yaml in parent directory
     run_dir = checkpoint_path.parent
@@ -160,7 +165,9 @@ def _resume_training(checkpoint_path: Path, dry_run: bool = False) -> None:
     run_training(finetune_config, resume_from=checkpoint_path)
 
 
-def _display_config_summary(config, resume_from: Optional[Path] = None) -> None:
+def _display_config_summary(
+    config: "FinetuneConfig", resume_from: Optional[Path] = None
+) -> None:
     """Display a summary of the training configuration."""
     from rich.table import Table
 
