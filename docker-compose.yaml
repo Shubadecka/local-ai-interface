@@ -4,6 +4,7 @@ services:
     container_name: ollama
     volumes:
       - ollama-data:/root/.ollama
+      - ./exports:/exports:ro  # Mount exports for model import
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
     devices:
@@ -12,6 +13,33 @@ services:
     group_add:
       - video
     restart: always
+
+  finetune:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.finetune
+    container_name: finetune
+    profiles:
+      - finetune  # Only start with: docker compose --profile finetune up
+    volumes:
+      - ./configs:/app/configs
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./exports:/app/exports
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+    ipc: host
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - HF_TOKEN=${HF_TOKEN:-}
+    depends_on:
+      - ollama
+    # No restart - run training jobs manually
+    stdin_open: true
+    tty: true
 
   comfyui:
     image: yanwk/comfyui-boot:rocm6

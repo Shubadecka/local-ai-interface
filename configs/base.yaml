@@ -1,0 +1,51 @@
+# Base configuration template for LLM finetuning
+# Copy this file and customize for your training run
+
+model:
+  # HuggingFace model name - Unsloth provides pre-quantized versions
+  name: "unsloth/Meta-Llama-3.1-8B-bnb-4bit"
+  max_seq_length: 2048
+  load_in_4bit: true
+  # dtype: null  # Auto-detect (bfloat16 on newer GPUs)
+
+lora:
+  r: 16                    # LoRA rank - higher = more capacity but more memory
+  lora_alpha: 16           # Scaling factor - typically same as r
+  lora_dropout: 0.0        # Dropout (0 is fine for most cases)
+  target_modules:          # Modules to apply LoRA to
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  use_gradient_checkpointing: true
+  use_rslora: false        # Rank-Stabilized LoRA
+
+training:
+  num_epochs: 1
+  batch_size: 2            # Per-device batch size
+  gradient_accumulation_steps: 4  # Effective batch = batch_size * gradient_accumulation
+  learning_rate: 2e-4
+  warmup_steps: 5
+  logging_steps: 1
+  save_steps: 100
+  save_total_limit: 3      # Keep only last N checkpoints
+  lr_scheduler_type: "linear"
+  optim: "adamw_8bit"      # Memory-efficient optimizer
+  max_grad_norm: 0.3
+  seed: 42
+
+data:
+  # HuggingFace dataset or local path (JSON/JSONL/CSV)
+  dataset: "yahma/alpaca-cleaned"
+  split: "train"
+  max_samples: null        # null = use all samples
+  text_field: "text"       # Field containing formatted text
+  packing: false           # Pack multiple sequences for efficiency
+
+output:
+  run_name: "my-finetune-run"
+  output_dir: "./checkpoints"
+  push_to_hub: false

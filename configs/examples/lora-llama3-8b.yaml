@@ -1,0 +1,56 @@
+# LoRA finetuning configuration for Llama 3.1 8B
+# Good for: instruction tuning, chat, general finetuning
+# VRAM: ~8-12GB with 4-bit quantization
+
+model:
+  name: "unsloth/Meta-Llama-3.1-8B-bnb-4bit"
+  max_seq_length: 2048
+  load_in_4bit: true
+
+lora:
+  r: 16
+  lora_alpha: 16
+  lora_dropout: 0.0
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  use_gradient_checkpointing: true
+
+training:
+  num_epochs: 3
+  batch_size: 2
+  gradient_accumulation_steps: 4
+  learning_rate: 2e-4
+  warmup_steps: 10
+  logging_steps: 10
+  save_steps: 200
+  save_total_limit: 3
+  lr_scheduler_type: "cosine"
+  optim: "adamw_8bit"
+  seed: 42
+
+data:
+  dataset: "yahma/alpaca-cleaned"
+  split: "train"
+  max_samples: null
+  # Alpaca format prompt template
+  prompt_template: |
+    Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+    ### Instruction:
+    {instruction}
+
+    ### Input:
+    {input}
+
+    ### Response:
+    {output}
+
+output:
+  run_name: "llama3-8b-alpaca-lora"
+  output_dir: "./checkpoints"

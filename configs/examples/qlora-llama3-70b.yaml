@@ -1,0 +1,58 @@
+# QLoRA finetuning configuration for Llama 3.1 70B
+# Good for: finetuning large models on limited VRAM
+# VRAM: ~24-40GB with 4-bit quantization
+
+model:
+  name: "unsloth/Meta-Llama-3.1-70B-bnb-4bit"
+  max_seq_length: 4096
+  load_in_4bit: true
+
+lora:
+  # Lower rank for 70B to fit in memory
+  r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  use_gradient_checkpointing: true
+  use_rslora: true  # Rank-stabilized LoRA helps with lower ranks
+
+training:
+  num_epochs: 1
+  batch_size: 1  # Small batch size for large model
+  gradient_accumulation_steps: 8  # Compensate with more accumulation
+  learning_rate: 1e-4  # Lower LR for large models
+  warmup_steps: 20
+  logging_steps: 5
+  save_steps: 100
+  save_total_limit: 2  # Fewer checkpoints to save disk space
+  lr_scheduler_type: "cosine"
+  optim: "adamw_8bit"
+  max_grad_norm: 0.3
+  seed: 42
+
+data:
+  dataset: "yahma/alpaca-cleaned"
+  split: "train"
+  max_samples: 5000  # Limit samples for faster iteration
+  prompt_template: |
+    Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+    ### Instruction:
+    {instruction}
+
+    ### Input:
+    {input}
+
+    ### Response:
+    {output}
+
+output:
+  run_name: "llama3-70b-alpaca-qlora"
+  output_dir: "./checkpoints"
