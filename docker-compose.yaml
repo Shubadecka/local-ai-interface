@@ -4,12 +4,14 @@ services:
     container_name: ollama
     volumes:
       - ollama-data:/root/.ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
     devices:
       - /dev/kfd:/dev/kfd
       - /dev/dri:/dev/dri
     group_add:
       - video
-    restart: unless-stopped
+    restart: always
 
   comfyui:
     image: yanwk/comfyui-boot:rocm6
@@ -17,6 +19,8 @@ services:
     volumes:
       - comfyui-storage:/root
       - comfyui-models:/root/ComfyUI/models
+    ports:
+      - "${COMFYUI_PORT:-8188}:8188"
     devices:
       - /dev/kfd:/dev/kfd
       - /dev/dri:/dev/dri
@@ -29,7 +33,7 @@ services:
       - seccomp:unconfined
     environment:
       - CLI_ARGS=
-    restart: unless-stopped
+    restart: always
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -37,7 +41,7 @@ services:
     volumes:
       - open-webui-data:/app/backend/data
     ports:
-      - "3000:8080"
+      - "${OPENWEBUI_PORT:-3000}:8080"
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - COMFYUI_BASE_URL=http://comfyui:8188
@@ -45,7 +49,7 @@ services:
     depends_on:
       - ollama
       - comfyui
-    restart: unless-stopped
+    restart: always
 
 volumes:
   ollama-data:
