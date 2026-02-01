@@ -26,15 +26,32 @@ The finetuning CLI allows you to train custom models and deploy them to Ollama.
 
 #### Installation (Host Development)
 
+**Important:** This project requires AMD GPUs with ROCm. Follow these steps in order.
+
 ```bash
-# Install with uv (recommended)
-uv pip install -e ".[dev]"
+# 1. Create a fresh virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate
 
-# Or with pip
-pip install -e ".[train,dev]"
+# 2. Install PyTorch ROCm stack (from official Unsloth guide)
+pip install -r requirements-rocm.txt
 
-# Install pre-commit hooks (if modifying files)
+# 3. Install Unsloth (handles transformers/trl/accelerate versions automatically)
+pip install unsloth
+
+# 4. Install this package
+pip install -e ".[train]"
+
+# 5. (Optional) Install dev dependencies for contributing
+pip install -e ".[dev]"
 pre-commit install
+```
+
+**Note for consumer AMD GPUs (RX 7000 series):** If you get xformers errors, edit `requirements-rocm.txt` and comment out the `xformers` line, then reinstall.
+
+Verify GPU detection:
+```bash
+python -c "import torch; print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Not found')"
 ```
 
 #### Usage

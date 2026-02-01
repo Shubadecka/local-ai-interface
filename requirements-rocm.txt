@@ -1,0 +1,19 @@
+# PyTorch and dependencies for AMD GPUs (ROCm)
+# Based on official Unsloth ROCm install: https://unsloth.ai/docs/get-started/install/amd
+#
+# Usage:
+#   pip install -r requirements-rocm.txt
+#   pip install unsloth
+#   pip install -e .
+#
+# Note: For consumer AMD GPUs (RX 7000 series), you may need to skip xformers.
+# Comment out the xformers line if you get errors.
+
+--index-url https://download.pytorch.org/whl/rocm6.4
+
+torch==2.8.0
+torchvision
+torchaudio
+torchao==0.13.0
+pytorch-triton-rocm
+xformers
