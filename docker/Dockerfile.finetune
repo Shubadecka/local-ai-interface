@@ -1,0 +1,51 @@
+# Dockerfile for LLM finetuning with ROCm (AMD GPU) support
+# Based on ROCm PyTorch image for AMD GPU compatibility
+
+ARG ROCM_VERSION=6.0
+FROM rocm/pytorch:rocm${ROCM_VERSION}_ubuntu22.04_py3.10_pytorch_2.1.2
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast Python package management
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
+
+# Copy only dependency files first (for better caching)
+COPY pyproject.toml .
+
+# Install Python dependencies
+# Note: We install in stages to leverage caching
+RUN uv pip install --system -e ".[train]"
+
+# Copy the rest of the application
+COPY finetune/ ./finetune/
+COPY configs/ ./configs/
+
+# Create directories for volumes
+RUN mkdir -p /app/checkpoints /app/exports /app/data
+
+# Set default command
+ENTRYPOINT ["python", "-m", "finetune"]
+CMD ["--help"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import finetune; print('OK')" || exit 1
+
+# Labels
+LABEL org.opencontainers.image.title="LLM Finetune" \
+      org.opencontainers.image.description="CLI tool for LLM finetuning with ROCm support" \
+      org.opencontainers.image.vendor="local-ai-interface"
