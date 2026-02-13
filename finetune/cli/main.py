@@ -2,12 +2,15 @@
 
 import typer
 from rich.console import Console
+from dotenv import load_dotenv
 
 from finetune import __version__
 from finetune.cli import config as config_cmd
 from finetune.cli import convert as convert_cmd
 from finetune.cli import list as list_cmd
 from finetune.cli import train as train_cmd
+
+load_dotenv()
 
 console = Console()
 

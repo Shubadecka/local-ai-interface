@@ -147,7 +147,7 @@ def _convert_to_gguf(
         from unsloth import FastLanguageModel
     except ImportError as e:
         raise ConversionError(
-            "Unsloth not installed. Install with: uv pip install llm-finetune[train]"
+            "Unsloth not installed. Install with: pip install -e \".[train]\""
         ) from e
 
     # Find the run config to get base model info

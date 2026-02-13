@@ -3,11 +3,12 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Callable
 
 from finetune.config.schema import FinetuneConfig
 from finetune.utils.logging import get_logger
 from finetune.utils.paths import ensure_dir
+from finetune.utils.data_formatting_funcs import FORMATTING_FUNCS
 
 logger = get_logger("trainer")
 
@@ -35,9 +36,11 @@ def run_training(
         TrainingError: If training fails
     """
     # Lazy imports to avoid loading heavy dependencies unnecessarily
+    # Unsloth must be imported before trl/transformers/peft for optimizations
     try:
-        from trl import SFTConfig, SFTTrainer
+        import unsloth  # noqa: F401
         from unsloth import FastLanguageModel
+        from trl import SFTConfig, SFTTrainer
     except ImportError as e:
         raise TrainingError(
             f"Training dependencies not installed. "
@@ -106,12 +109,21 @@ def run_training(
         seed=config.training.seed,
         gradient_checkpointing=config.training.gradient_checkpointing,
         max_grad_norm=config.training.max_grad_norm,
-        max_seq_length=config.model.max_seq_length,
+        max_length=config.model.max_seq_length,
         packing=config.data.packing,
         dataset_text_field=config.data.text_field,
+        dataloader_num_workers=config.data.dataloader_num_workers,
     )
 
     logger.info("Initializing trainer")
+
+    # Get formatting function
+    def get_formatting_func(name: str) -> Callable:
+        if name not in FORMATTING_FUNCS:
+            raise ValueError(f"Formatting function {name} not found")
+        return FORMATTING_FUNCS[name]
+
+    formatting_func = get_formatting_func(config.data.process_func)
 
     # Create trainer
     trainer = SFTTrainer(
@@ -119,6 +131,8 @@ def run_training(
         tokenizer=tokenizer,
         train_dataset=dataset,
         args=training_args,
+        formatting_func=formatting_func,
+        dataset_num_proc=config.data.dataset_num_proc,
     )
 
     # Resume from checkpoint if specified

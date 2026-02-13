@@ -222,6 +222,21 @@ class DataConfig(BaseModel):
         lt=1.0,
         description="Fraction of data to use for validation",
     )
+    process_func: str = Field(
+        default="",
+        description="Name of the formatting function to use for the dataset",
+        examples=["deepmind_code_contests"],
+    )
+    dataloader_num_workers: int = Field(
+        default=0,
+        ge=0,
+        description="Number of workers for the dataloader",
+    )
+    dataset_num_proc: int = Field(
+        default=2,
+        ge=1,
+        description="Number of processes for the dataset",
+    )
 
 
 class OutputConfig(BaseModel):

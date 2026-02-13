@@ -1,9 +1,9 @@
 model:
-  name: unsloth/Meta-Llama-3.2-1B-bnb-4bit
-  max_seq_length: 2048
+  name: unsloth/Llama-3.2-1B-bnb-4bit
+  max_seq_length: 1024
   load_in_4bit: true
 lora:
-  r: 16
+  r: 8
   lora_alpha: 16
   lora_dropout: 0.0
   target_modules:
@@ -16,8 +16,8 @@ lora:
   - down_proj
 training:
   num_epochs: 10
-  batch_size: 4
-  gradient_accumulation_steps: 4
+  batch_size: 2
+  gradient_accumulation_steps: 8
   learning_rate: 0.0002
   warmup_steps: 5
   logging_steps: 5
@@ -26,6 +26,9 @@ data:
   dataset: deepmind/code_contests
   split: train
   max_samples: 1000
+  process_func: deepmind_code_contests
+  dataloader_num_workers: 0
+  dataset_num_proc: 2
 output:
   run_name: llama-1b-instruct-playground
   output_dir: ./checkpoints
